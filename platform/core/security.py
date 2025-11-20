@@ -10,7 +10,13 @@ from platform.core.config import get_settings
 settings = get_settings()
 
 # Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Use bcrypt with truncate_error to avoid compatibility issues with newer bcrypt versions
+pwd_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto",
+    bcrypt__default_rounds=12,
+    bcrypt__truncate_error=False,  # Allow bcrypt to handle truncation internally
+)
 
 
 def hash_password(password: str) -> str:
@@ -36,6 +42,10 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     """
     to_encode = data.copy()
 
+    # Ensure 'sub' is a string (JWT spec requirement)
+    if "sub" in to_encode and not isinstance(to_encode["sub"], str):
+        to_encode["sub"] = str(to_encode["sub"])
+
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
@@ -53,6 +63,11 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 def create_refresh_token(data: dict) -> str:
     """Create a JWT refresh token with longer expiration."""
     to_encode = data.copy()
+
+    # Ensure 'sub' is a string (JWT spec requirement)
+    if "sub" in to_encode and not isinstance(to_encode["sub"], str):
+        to_encode["sub"] = str(to_encode["sub"])
+
     expire = datetime.utcnow() + timedelta(days=settings.api_refresh_token_expire_days)
     to_encode.update({"exp": expire, "type": "refresh"})
 
