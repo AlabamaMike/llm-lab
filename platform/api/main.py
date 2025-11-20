@@ -41,9 +41,13 @@ async def root():
     }
 
 
-# Import routers (will add later)
-# from platform.api.routes import auth, experiments, jobs, prompts
-# app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+# Import routers
+from platform.api.routes import auth
+
+app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+
+# Additional routers (will add later)
+# from platform.api.routes import experiments, jobs, prompts
 # app.include_router(experiments.router, prefix="/experiments", tags=["Experiments"])
 # app.include_router(jobs.router, prefix="/jobs", tags=["Jobs"])
 # app.include_router(prompts.router, prefix="/prompts", tags=["Prompts"])
